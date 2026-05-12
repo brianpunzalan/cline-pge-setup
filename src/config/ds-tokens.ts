@@ -36,7 +36,6 @@ export const COLOR_TOKENS: TokenGroup[] = [
   { cssVariable: "--color-info-500",    value: "#3b82f6" },
 ];
 
-// Raw pixel values that have a spacing token equivalent
 export const SPACING_TOKENS: TokenGroup[] = [
   { cssVariable: "--spacing-0",  value: "0px" },
   { cssVariable: "--spacing-1",  value: "4px" },
@@ -107,15 +106,12 @@ export const MOTION_TOKENS = {
   ],
 };
 
-// Pixel values that are explicitly allowed as raw values (sub-pixel nudges etc.)
 export const ALLOWED_RAW_PX = new Set([0, 1]);
 
-// Spacing pixel values that have a token equivalent (for fast lookup)
 export const SPACING_PX_WITH_TOKEN = new Set(
   SPACING_TOKENS.map(t => parseInt(t.value))
 );
 
-// Breakpoint pixel values that have a token equivalent
 export const BREAKPOINT_PX_WITH_TOKEN = new Set(
   BREAKPOINT_TOKENS.map(t => parseInt(t.value))
 );

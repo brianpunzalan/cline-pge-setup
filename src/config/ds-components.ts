@@ -3,7 +3,6 @@
  * Update this to match your actual design system's exported components.
  */
 
-// Maps native HTML elements to their DS component equivalents
 export const DS_COMPONENT_MAP: Record<string, string[]> = {
   button:   ["Button", "IconButton"],
   input:    ["TextInput", "Checkbox", "Radio", "Switch"],
@@ -14,7 +13,6 @@ export const DS_COMPONENT_MAP: Record<string, string[]> = {
   textarea: ["Textarea"],
 };
 
-// Layout primitives provided by the DS (replacing raw flex/grid CSS)
 export const DS_LAYOUT_COMPONENTS = new Set([
   "Stack",
   "HStack",
@@ -30,7 +28,6 @@ export const DS_LAYOUT_COMPONENTS = new Set([
   "Switcher",
 ]);
 
-// Valid prop enums per DS component (extend with your actual component API)
 export const DS_COMPONENT_SCHEMAS: Record<string, Record<string, string[]>> = {
   Button: {
     variant: ["primary", "secondary", "tertiary", "ghost", "danger"],
@@ -82,8 +79,6 @@ export const DS_COMPONENT_SCHEMAS: Record<string, Record<string, string[]>> = {
   },
 };
 
-// Props that are always invalid on any DS component (style injection)
 export const BANNED_DS_PROPS = new Set(["style", "sx", "css"]);
 
-// className is allowed only on layout primitives, not on leaf DS components
 export const CLASSNAME_ALLOWED_COMPONENTS = DS_LAYOUT_COMPONENTS;

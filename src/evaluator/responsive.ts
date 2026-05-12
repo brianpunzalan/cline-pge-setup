@@ -15,9 +15,7 @@ function countMatches(text: string, pattern: RegExp): RegExpMatchArray[] {
   return matches;
 }
 
-// Matches raw media query breakpoints: @media (min-width: 768px)
 const RAW_MEDIA_QUERY = /@media[^{]+(?:min|max)-width:\s*(\d+)px/g;
-// DS mixin form: ${breakpoints.md} or var(--breakpoint-md)
 const DS_BREAKPOINT_USAGE = /(?:breakpoints\.\w+|var\(--breakpoint-)/g;
 
 export function checkBreakpointTokens(files: GeneratedFile[]): CriterionResult {
@@ -51,7 +49,7 @@ export function checkBreakpointTokens(files: GeneratedFile[]): CriterionResult {
   return {
     id: "breakpoint_tokens",
     score,
-    passed: true, // treated as informational — part of layout_primitives score
+    passed: true,
     violations,
     details: `Found ${violations.length} raw breakpoint value(s).`,
   };

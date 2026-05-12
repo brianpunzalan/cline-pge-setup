@@ -1,11 +1,11 @@
 import type { RubricCriterion, EvaluationResult, CriterionResult } from "../types.js";
 
 export const RUBRIC: RubricCriterion[] = [
-  // ── Hard gates (weight 0, must score 1.0) ────────────────────────────────
+  // ── Hard gates (weight 0, must score 1.0) ──────────────────────────────────
   { id: "theme_provider_scope", weight: 0.00, threshold: 1.0, scoring: { type: "binary" } },
   { id: "focus_management",     weight: 0.00, threshold: 1.0, scoring: { type: "binary" } },
 
-  // ── Token compliance (0.40 total) ────────────────────────────────────────
+  // ── Token compliance (0.40 total) ──────────────────────────────────────────
   { id: "color_tokens",      weight: 0.15, threshold: 0.7, scoring: { type: "metric" } },
   { id: "spacing_tokens",    weight: 0.12, threshold: 0.7, scoring: { type: "metric" } },
   { id: "typography_tokens", weight: 0.08, threshold: 0.7, scoring: { type: "metric" } },
@@ -16,7 +16,7 @@ export const RUBRIC: RubricCriterion[] = [
   { id: "prop_correctness",     weight: 0.12, threshold: 0.8, scoring: { type: "metric" } },
   { id: "layout_primitives",    weight: 0.08, threshold: 0.0, scoring: { type: "metric" } },
 
-  // ── Accessibility (0.20 total) ────────────────────────────────────────────
+  // ── Accessibility (0.20 total) ──────────────────────────────────────────
   { id: "axe_violations", weight: 0.12, threshold: 0.7, scoring: { type: "metric" } },
   { id: "contrast_ratio", weight: 0.08, threshold: 0.9, scoring: { type: "metric" } },
 
@@ -31,14 +31,12 @@ export function assembleEvaluation(
 ): EvaluationResult {
   const resultById = new Map(criteria.map(c => [c.id, c]));
 
-  // Hard gates must all pass
   const hardGates = RUBRIC.filter(r => r.threshold === 1.0 && r.weight === 0);
   const hardGatesPassed = hardGates.every(gate => {
     const result = resultById.get(gate.id);
     return result ? result.score >= 1.0 : true;
   });
 
-  // Weighted score from non-gate criteria
   const weightedCriteria = RUBRIC.filter(r => r.weight > 0);
   const totalWeight = weightedCriteria.reduce((sum, r) => sum + r.weight, 0);
 
@@ -48,7 +46,6 @@ export function assembleEvaluation(
     return sum + score * r.weight;
   }, 0) / totalWeight;
 
-  // Check per-criterion thresholds (criteria with threshold > 0)
   const thresholdFailures = RUBRIC.filter(r => r.threshold > 0 && r.weight > 0)
     .filter(r => {
       const result = resultById.get(r.id);
