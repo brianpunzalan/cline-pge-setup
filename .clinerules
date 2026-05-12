@@ -1,0 +1,140 @@
+# Cline Project Rules — UI Design Evaluator (Planner-Generator-Evaluator)
+
+## Project Purpose
+
+This project is a **harness** that runs a Planner → Generator → Evaluator loop to produce
+React UI components that are fully compliant with the company design system.
+
+You are acting as an autonomous frontend coding agent. Never output raw HTML or CSS
+that bypasses the design system. Always use design system components and tokens.
+
+---
+
+## Architecture Overview
+
+```
+UIRequest
+    │
+    ▼
+┌─────────┐
+│ PLANNER │  Decomposes the request into a structured component plan.
+│  Agent  │  Output: Plan (component tree, required DS components, layout, state)
+└────┬────┘
+     │ Plan
+     ▼
+┌─────────────┐
+│  GENERATOR  │◄──── feedback (on retry)
+│    Agent    │  Writes TSX files using DS components + tokens only.
+└──────┬──────┘
+       │ GeneratedCode
+       ▼
+┌───────────┐
+│ EVALUATOR │  Static-analyzes code against design system rubric.
+│  (static) │  Output: EvaluationResult (weighted score per criterion)
+└─────┬─────┘
+      │
+      ├── score ≥ threshold ──► Return result ✓
+      │
+      └── score < threshold ──► Feed violations back to Generator (retry)
+```
+
+Max retries: 3 (configurable via HARNESS_MAX_ATTEMPTS env var)
+Pass threshold: 0.80 weighted score (configurable via HARNESS_PASS_THRESHOLD)
+
+---
+
+## Design System Rules for the Generator Agent
+
+When writing React components:
+
+### DO
+- Use design system components for all interactive and semantic elements:
+  - `<Button>` instead of `<button>`
+  - `<TextInput>`, `<Checkbox>`, `<Radio>` instead of `<input>`
+  - `<Select>` or `<Combobox>` instead of `<select>`
+  - `<Link>` instead of `<a>`
+  - `<DataTable>` instead of `<table>`
+  - `<Textarea>` instead of `<textarea>`
+- Use design token CSS variables for all visual values:
+  - Colors: `var(--color-*)` tokens only
+  - Spacing: `var(--spacing-*)` tokens only
+  - Typography: `var(--font-size-*)`, `var(--font-weight-*)` tokens only
+  - Shadows: `var(--shadow-*)` tokens only
+  - Motion: `var(--duration-*)`, `var(--easing-*)` tokens only
+- Use layout primitives: `<Stack>`, `<Grid>`, `<Cluster>`, `<Sidebar>`
+- Wrap component trees in `<ThemeProvider>`
+- Add `prefers-reduced-motion` guards around new animations
+- Ensure interactive elements are keyboard accessible (role, tabIndex, aria-*)
+
+### DO NOT
+- Hardcode hex colors, rgb(), rgba(), hsl() values
+- Hardcode px/rem/em for margin, padding, gap, font-size, font-weight
+- Use raw `box-shadow` without `var(--shadow-*)` tokens
+- Use raw `@media (min-width: Npx)` — use DS breakpoint tokens
+- Apply `style={{}}` overrides on DS components
+- Inject arbitrary `className` onto DS components
+- Use invalid prop values on DS components (check the component's type signature)
+
+---
+
+## Evaluator Scoring
+
+The evaluator runs static analysis (no LLM) and returns a weighted score 0–1.
+
+**Hard gates** (must pass or generation is rejected regardless of score):
+- `theme_provider_scope`: component tree wrapped in `<ThemeProvider>`
+- `focus_management`: no `onClick` on non-interactive elements without role/tabIndex
+
+**Weighted criteria** (score ≥ threshold required):
+| Criterion            | Weight | Threshold |
+|----------------------|--------|-----------|
+| color_tokens         | 0.15   | 0.70      |
+| spacing_tokens       | 0.12   | 0.70      |
+| typography_tokens    | 0.08   | 0.70      |
+| shadow_tokens        | 0.05   | —         |
+| native_override_rate | 0.15   | 0.80      |
+| prop_correctness     | 0.12   | 0.80      |
+| layout_primitives    | 0.08   | —         |
+| axe_violations       | 0.12   | 0.70      |
+| contrast_ratio       | 0.08   | 0.90      |
+| motion_tokens        | 0.03   | —         |
+| reduced_motion_guard | 0.02   | —         |
+
+---
+
+## File Structure
+
+```
+src/
+├── index.ts                # CLI entry point
+├── harness.ts              # PGE orchestration loop
+├── types.ts                # Shared TypeScript types
+├── agents/
+│   ├── planner.ts          # Planner agent (Claude API)
+│   ├── generator.ts        # Generator agent (Claude API)
+│   └── prompts/
+│       ├── planner.md      # Planner system prompt
+│       └── generator.md    # Generator system prompt
+├── evaluator/
+│   ├── index.ts            # Evaluator runner
+│   ├── rubric.ts           # Rubric definition + score assembly
+│   ├── token-compliance.ts # Color, spacing, typography, shadow checks
+│   ├── component-usage.ts  # Native element override, prop correctness
+│   ├── accessibility.ts    # Axe violations, contrast ratio
+│   ├── responsive.ts       # Breakpoint adherence, layout primitives
+│   └── motion.ts           # Motion tokens, reduced-motion guard
+└── config/
+    ├── ds-components.ts    # Design system component map
+    └── ds-tokens.ts        # Design system token registry
+```
+
+---
+
+## Environment Variables
+
+```
+ANTHROPIC_API_KEY=sk-...         # Required
+HARNESS_MAX_ATTEMPTS=3           # Default: 3
+HARNESS_PASS_THRESHOLD=0.80      # Default: 0.80
+HARNESS_MODEL=claude-sonnet-4-6  # Default: claude-sonnet-4-6
+```
