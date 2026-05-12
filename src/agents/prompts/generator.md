@@ -87,7 +87,6 @@ Available layout components: `Stack`, `HStack`, `VStack`, `Grid`, `GridItem`,
 ### 5. Always wrap in ThemeProvider
 
 ```tsx
-// Every component tree root must have a ThemeProvider ancestor
 import { ThemeProvider } from "@company/design-system";
 
 export function App() {
