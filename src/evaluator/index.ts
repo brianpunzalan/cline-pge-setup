@@ -12,26 +12,17 @@ export async function evaluate(
   const { files } = code;
 
   const criteria: CriterionResult[] = [
-    // Hard gates
     checkThemeProviderScope(files),
     checkFocusManagement(files),
-
-    // Token compliance
     checkColorTokens(files),
     checkSpacingTokens(files),
     checkTypographyTokens(files),
     checkShadowTokens(files),
-
-    // Component usage
     checkNativeOverrideRate(files),
     checkPropCorrectness(files),
     checkLayoutPrimitives(files),
-
-    // Accessibility
     checkAxeViolations(files),
     checkContrastRatio(files),
-
-    // Motion
     checkMotionTokens(files),
     checkReducedMotionGuard(files),
   ];
