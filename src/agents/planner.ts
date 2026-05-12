@@ -39,7 +39,6 @@ export async function runPlanner(
     .map(b => b.text)
     .join("");
 
-  // Extract JSON from the response (handle markdown code blocks)
   const jsonMatch = text.match(/```(?:json)?\s*([\s\S]+?)```/) ?? [null, text];
   const raw = jsonMatch[1]?.trim() ?? text.trim();
 

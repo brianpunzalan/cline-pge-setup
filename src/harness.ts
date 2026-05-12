@@ -27,13 +27,11 @@ export async function runHarness(
     apiKey: process.env.ANTHROPIC_API_KEY,
   });
 
-  // ── Step 1: Plan ────────────────────────────────────────────────────────────
   logger("[harness] Running Planner...");
   const plan = await runPlanner(client, cfg.model, request);
   logger(`[harness] Plan ready: ${plan.summary}`);
   logger(`[harness] Required DS components: ${plan.requiredDSComponents.join(", ")}`);
 
-  // ── Step 2: Generate → Evaluate loop ────────────────────────────────────────
   let attempt = 0;
   let feedback: GenerationFeedback | undefined;
   let lastEvaluation: EvaluationResult | undefined;
